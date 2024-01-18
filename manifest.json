@@ -1,0 +1,20 @@
+{
+    "version": "1.0.0",
+    "manifest_version": 3,
+    "name": "NO NAME",
+    "description": "",
+    "action": {
+        "default_popup": "js/index.html",
+        "default_title": "No Title"
+    },
+    "background": {
+        "service_worker": "./js/service-worker.js"
+    },
+    "permissions": [
+        "identity",
+        "storage",
+        "webRequest"
+    ],
+    "host_permissions": [
+    ]
+}

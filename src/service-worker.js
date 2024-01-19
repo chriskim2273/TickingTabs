@@ -76,6 +76,7 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
     PropogateTabs(tabId, lastTabId);
 });
 
+/*
 chrome.windows.onFocusChanged.addListener(function (windowId) {
     chrome.tabs.query({ active: true, windowId: windowId }, function (tabs) {
         let tabId = tabs[0];
@@ -83,6 +84,7 @@ chrome.windows.onFocusChanged.addListener(function (windowId) {
         PropogateTabs(tabId, lastTabId);
     });
 });
+*/
 
 function startTimer(tabId) {
     if (tabId in createdTabs) {

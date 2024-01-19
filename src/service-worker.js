@@ -1,13 +1,30 @@
 let createdTabs = {}
 let TabIdRecord = [];
+let tabHistory = {}
 
 const TIME_BEFORE_CLOSE = 5000;
 const AMT_TABS_IN_RECORD = 10;
+let URL = "https://www.bing.com"
+
+chrome.storage.local.get(null, function (data) {
+    if (data.urlToOpen !== undefined) {
+        URL = data.urlToOpen;
+    }
+});
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     switch (message.action) {
         case 'getTabs':
             chrome.runtime.sendMessage({ action: 'sendTabs', tabInfo: createdTabs });
+            break;
+        case 'getTabsHistory':
+            chrome.runtime.sendMessage({ action: 'sendTabHistory', tabInfo: tabHistory });
+            break;
+        case 'updateUrlToOpen':
+            URL = message.urlToOpen;
+            break;
+        case 'log':
+            console.log(message.message);
             break;
     }
 });
@@ -16,7 +33,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 chrome.commands.onCommand.addListener(function (command) {
     switch (command) {
         case "open_new_tab":
-            chrome.tabs.create({ url: 'http://www.google.com' }, function (tab) {
+            chrome.tabs.create({ url: URL }, function (tab) {
                 createdTabs[tab.id] = null;
             });
             break;
@@ -41,17 +58,8 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     }
 });
 
-
-
-chrome.tabs.onActivated.addListener(function (activeInfo) {
-    //pauseTimer(lastTabId);
-    //lastTabId = activeInfo.tabId;
-    //pauseTimer(activeInfo.tabId)
-    //console.log(activeInfo);
-    // Pause the timer if it exists for the tab
-    let tabId = activeInfo.tabId;
+const PropogateTabs = (tabId, lastTabId) => {
     pauseTimer(tabId);
-    let lastTabId = TabIdRecord[TabIdRecord.length - 1];
     if (tabId && lastTabId && tabId != lastTabId && createdTabs?.lastTabId == undefined) {
         startTimer(lastTabId);
     }
@@ -59,16 +67,23 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
         TabIdRecord = [];
     }
     TabIdRecord.push(tabId);
+}
+
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+    // Pause the timer if it exists for the tab
+    let { tabId } = activeInfo;
+    let lastTabId = TabIdRecord[TabIdRecord.length - 1];
+    PropogateTabs(tabId, lastTabId);
 });
-/*
+
 chrome.windows.onFocusChanged.addListener(function (windowId) {
     chrome.tabs.query({ active: true, windowId: windowId }, function (tabs) {
-        if (tabs[0]) {
-            resetTimer(tabs[0].id);
-        }
+        let tabId = tabs[0];
+        let lastTabId = TabIdRecord[TabIdRecord.length - 1];
+        PropogateTabs(tabId, lastTabId);
     });
 });
-*/
+
 function startTimer(tabId) {
     if (tabId in createdTabs) {
         console.log("Started timer: " + tabId);
@@ -77,7 +92,11 @@ function startTimer(tabId) {
                 const tab = tabs[0];
                 chrome.tabs.remove(tabId);
                 delete createdTabs[tabId];
-                chrome.runtime.sendMessage({ action: 'tabRemoved', tabInfo: tab });
+                tabHistory[tabId] = tab;
+                chrome.storage.local.set({ 'tabHistory': tabHistory }, function () {
+                    console.log('Tab History is set to ' + JSON.stringify(tabHistory));
+                });
+                //chrome.runtime.sendMessage({ action: 'tabRemoved', tabInfo: tabHistory });
             });
         }, TIME_BEFORE_CLOSE);
     }

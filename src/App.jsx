@@ -1,19 +1,20 @@
 /// <reference types="chrome"/>
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css"
+import { Text } from "@chakra-ui/react";
+import MainApp from "./MainApp";
 
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-  switch (message.action) {
-    case 'tabRemoved':
-      console.log(message.tabInfo);
-      break;
-  }
-});
 
 function App() {
+  const [rerender, setRerender] = useState(false);
+
+  const startRerender = () => {
+    setRerender(!rerender);
+  }
+
   return (
     <div className="App">
-      <Text>{"Hello World!"}</Text>
+      <MainApp rerender={startRerender} />
     </div>
   );
 }

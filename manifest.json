@@ -10,7 +10,7 @@
     "background": {
         "service_worker": "./js/service-worker.js"
     },
-    "permissions": ["tabs", "commands", "windows"],
+    "permissions": ["tabs", "commands", "windows", "storage", "activeTab"],
     "commands": {
         "open_new_tab": {
             "suggested_key": {

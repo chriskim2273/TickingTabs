@@ -1,7 +1,7 @@
 /// <reference types="chrome"/>
 import { useEffect, useState } from "react";
 import "./App.css"
-import { AbsoluteCenter, Box, Divider, Text } from "@chakra-ui/react";
+import { AbsoluteCenter, Box, Center, Divider, Kbd, Text } from "@chakra-ui/react";
 import UrlInput from "./UrlInput";
 import ResetHistoryButton from "./ResetHistoryButton";
 
@@ -40,6 +40,18 @@ const MainApp = ({ rerender }) => {
     return (
         <Box>
             <UrlInput input={urlInput} changeInput={setUrlInput} />
+            <Box position='relative' padding='5'>
+                <Divider />
+                <AbsoluteCenter bg='white' px='4'>
+                    Binds
+                </AbsoluteCenter>
+            </Box>
+            <Center>
+                Open Ticking Tab:   <Kbd>alt</Kbd> + <Kbd>1</Kbd>
+            </Center>
+            <Center>
+                Perpetuate Ticking Tab:   <Kbd>alt</Kbd> + <Kbd>1</Kbd>
+            </Center>
             <Box position='relative' padding='5'>
                 <Divider />
                 <AbsoluteCenter bg='white' px='4'>

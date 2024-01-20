@@ -1,7 +1,7 @@
 /// <reference types="chrome"/>
 import { useEffect, useState } from "react";
 import "./App.css"
-import { AbsoluteCenter, Box, Center, Divider, Kbd, Text } from "@chakra-ui/react";
+import { AbsoluteCenter, Box, Button, Center, Divider, Kbd, Stack, Text } from "@chakra-ui/react";
 import UrlInput from "./UrlInput";
 import ResetHistoryButton from "./ResetHistoryButton";
 
@@ -10,6 +10,7 @@ const MainApp = ({ rerender }) => {
     const [TabHistory, setTabHistory] = useState({})
     const [tabHistoryComponent, setTabHistoryComponent] = useState(<></>);
     const [urlInput, setUrlInput] = useState("");
+    const [stayAwake, setStayAwake] = useState(false);
 
     chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         switch (message.action) {
@@ -22,21 +23,51 @@ const MainApp = ({ rerender }) => {
             case 'sendTabHistory':
                 setTabHistory(message.tabInfo);
                 break;
+            case 'timerEnded':
+                setStayAwake(false);
+                break;
+            case 'timerStarted':
+                console.log("start!")
+                setStayAwake(true);
+                break;
         }
     });
+
+    useEffect(() => {
+        let intervalId;
+
+        if (stayAwake) {
+            intervalId = setInterval(() => {
+                chrome.runtime.sendMessage({ action: 'wakeUp' });
+            }, 5000); // 5000 milliseconds = 5 seconds
+        }
+
+        // Cleanup function to clear the interval when the component unmounts or isActive changes
+        return () => clearInterval(intervalId);
+    }, [stayAwake])
 
     useEffect(() => {
         //chrome.runtime.sendMessage({ action: 'getTabs' });
         //chrome.runtime.sendMessage({ action: 'getTabHistory' });
         chrome.storage.local.get(null, function (data) {
             if (data.tabHistory !== undefined) {
-                setTabHistory(data.tabHistory);
+                const tabHistoryJSON = JSON.parse(data.tabHistory);
+                if (Object.keys(tabHistoryJSON).length > 0) {
+                    console.log(tabHistoryJSON);
+                    setTabHistory(tabHistoryJSON);
+                }
             }
         });
     }, [])
     useEffect(() => {
         rerender();
     }, [TabData, TabHistory])
+
+    const openTab = (url) => {
+        chrome.runtime.sendMessage({ action: 'openTab', url: url });
+    }
+
+
     return (
         <Box>
             <UrlInput input={urlInput} changeInput={setUrlInput} />
@@ -50,7 +81,7 @@ const MainApp = ({ rerender }) => {
                 Open Ticking Tab:   <Kbd>alt</Kbd> + <Kbd>1</Kbd>
             </Center>
             <Center>
-                Perpetuate Ticking Tab:   <Kbd>alt</Kbd> + <Kbd>1</Kbd>
+                Perpetuate Ticking Tab:   <Kbd>alt</Kbd> + <Kbd>2</Kbd>
             </Center>
             <Box position='relative' padding='5'>
                 <Divider />
@@ -74,7 +105,15 @@ const MainApp = ({ rerender }) => {
                     },
                 }}
             >
-                <Text>{JSON.stringify(TabHistory)}</Text>
+                <Stack>
+                    {Object.keys(TabHistory).map((key, index) => {
+                        return (
+                            <Center key={`tab-history-${index}`}>
+                                <Button onClick={() => { openTab(TabHistory[key].url) }} colorScheme='teal' variant='outline'>{JSON.stringify(TabHistory[key].title)}</Button>
+                            </Center>
+                        )
+                    })}
+                </Stack>
             </Box>
         </Box>
     );

@@ -2,9 +2,10 @@ let createdTabs = {}
 let TabIdRecord = [];
 let tabHistory = {}
 
-const TIME_BEFORE_CLOSE = 5000;
+const TIME_BEFORE_CLOSE = 30000;
 const AMT_TABS_IN_RECORD = 10;
 let URL = "https://www.bing.com"
+let STAY_AWAKE_TIMER = undefined;
 
 chrome.storage.local.get(null, function (data) {
     if (data.urlToOpen !== undefined) {
@@ -26,11 +27,19 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         case 'log':
             console.log(message.message);
             break;
+        case 'wakeUp':
+            console.log("Good morning!");
+            break;
+        case 'openTab':
+            chrome.tabs.create({ url: message.url }, function (tab) {
+            });
+            break;
     }
 });
 
 
 chrome.commands.onCommand.addListener(function (command) {
+    console.log(command);
     switch (command) {
         case "open_new_tab":
             chrome.tabs.create({ url: URL }, function (tab) {
@@ -92,15 +101,22 @@ function startTimer(tabId) {
         createdTabs[tabId] = setTimeout(function () {
             chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
                 const tab = tabs[0];
-                chrome.tabs.remove(tabId);
+                try { chrome.tabs.remove(tabId); } catch (err) { } // may be causing an error with tab history
                 delete createdTabs[tabId];
                 tabHistory[tabId] = tab;
-                chrome.storage.local.set({ 'tabHistory': tabHistory }, function () {
+                checkTimer();
+                chrome.storage.local.set({ 'tabHistory': JSON.stringify(tabHistory) }, function () {
                     console.log('Tab History is set to ' + JSON.stringify(tabHistory));
                 });
                 //chrome.runtime.sendMessage({ action: 'tabRemoved', tabInfo: tabHistory });
             });
         }, TIME_BEFORE_CLOSE);
+        clearInterval(STAY_AWAKE_TIMER);
+        STAY_AWAKE_TIMER = undefined
+        STAY_AWAKE_TIMER = setInterval(function () {
+            console.log("Good morning!");
+            console.log(createdTabs)
+        }, 5000);
     }
 }
 
@@ -116,5 +132,24 @@ function pauseTimer(tabId) {
     if (tabId in createdTabs) {
         console.log("Paused: " + tabId);
         clearTimeout(createdTabs[tabId]);
+        createdTabs[tabId] = undefined;
+    }
+    checkTimer();
+
+}
+
+function checkTimer() {
+    let keys = Object.keys(createdTabs);
+    let timersExist = false;
+    for (let i = 0; i < keys.length; i++) {
+        if (createdTabs[keys[i]] != undefined) {
+            timersExist = true;
+            break; // Exit the loop as soon as we find a timer
+        }
+    }
+    if (timersExist === false && STAY_AWAKE_TIMER != undefined) {
+        //console.log("timer ended.")
+        clearInterval(STAY_AWAKE_TIMER);
+        STAY_AWAKE_TIMER = undefined;
     }
 }

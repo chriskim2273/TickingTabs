@@ -56,6 +56,11 @@ chrome.commands.onCommand.addListener(function (command) {
                 console.log("Perpetuated Tab: " + tabId);
             });
             break;
+        case "tick_tab":
+            chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+                let tabId = tabs[0].id;
+                createdTabs[tabId] = null;
+            });
     }
 });
 

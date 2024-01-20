@@ -23,6 +23,12 @@
                 "default": "Alt+2"
             },
             "description": "Make a tab permanent"
+        },
+        "tick_tab": {
+            "suggested_key": {
+                "default": "Alt+3"
+            },
+            "description": "Add a timer to a tab"
         }
     },
     "host_permissions": [

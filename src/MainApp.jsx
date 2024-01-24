@@ -78,10 +78,10 @@ const MainApp = ({ rerender }) => {
                 </AbsoluteCenter>
             </Box>
             <Center>
-                Open Ticking Tab:   <Kbd>alt</Kbd> + <Kbd>1</Kbd>
+                Open Ticking Tab:   <Kbd>alt</Kbd> + <Kbd>1</Kbd> or <Kbd>Option</Kbd> + <Kbd>1</Kbd>
             </Center>
             <Center>
-                Perpetuate Ticking Tab:   <Kbd>alt</Kbd> + <Kbd>2</Kbd>
+                Perpetuate Ticking Tab:   <Kbd>alt</Kbd> + <Kbd>2</Kbd> or <Kbd>Option</Kbd> + <Kbd>2</Kbd>
             </Center>
             <Box position='relative' padding='5'>
                 <Divider />

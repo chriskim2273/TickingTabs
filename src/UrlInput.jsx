@@ -2,7 +2,7 @@ import { AbsoluteCenter, Box, Center, Divider, Input, InputGroup, InputLeftAddon
 import React, { useEffect, useState } from 'react'
 
 const UrlInput = ({ input, changeInput }) => {
-    const [savedUrl, setSavedUrl] = useState("ENTER URL TO OPEN");
+    const [savedUrl, setSavedUrl] = useState("        ENTER URL TO OPEN");
     useEffect(() => {
         chrome.storage.local.get(null, function (data) {
             if (data.urlToOpen !== undefined) {

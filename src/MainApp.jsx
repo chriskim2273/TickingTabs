@@ -83,6 +83,9 @@ const MainApp = ({ rerender }) => {
             <Center>
                 Perpetuate Ticking Tab:   <Kbd>alt</Kbd> + <Kbd>2</Kbd> or <Kbd>Option</Kbd> + <Kbd>2</Kbd>
             </Center>
+            <Center>
+                Add Timer To Tab:   <Kbd>alt</Kbd> + <Kbd>3</Kbd> or <Kbd>Option</Kbd> + <Kbd>3</Kbd>
+            </Center>
             <Box position='relative' padding='5'>
                 <Divider />
                 <AbsoluteCenter bg='white' px='4'>

@@ -4,6 +4,7 @@ import "./App.css"
 import { AbsoluteCenter, Box, Button, Center, Divider, Kbd, Stack, Text } from "@chakra-ui/react";
 import UrlInput from "./UrlInput";
 import ResetHistoryButton from "./ResetHistoryButton";
+import TimerInput from "./TimerInput";
 
 const MainApp = ({ rerender }) => {
     const [TabData, setTabData] = useState({});
@@ -11,6 +12,7 @@ const MainApp = ({ rerender }) => {
     const [tabHistoryComponent, setTabHistoryComponent] = useState(<></>);
     const [urlInput, setUrlInput] = useState("");
     const [stayAwake, setStayAwake] = useState(false);
+    const [savedTime, setSavedTime] = useState(30);
 
     chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         switch (message.action) {
@@ -57,6 +59,9 @@ const MainApp = ({ rerender }) => {
                     setTabHistory(tabHistoryJSON);
                 }
             }
+            if (data.savedTime !== undefined) {
+                setSavedTime(JSON.parse(data.savedTime));
+            }
         });
     }, [])
     useEffect(() => {
@@ -71,6 +76,7 @@ const MainApp = ({ rerender }) => {
     return (
         <Box>
             <UrlInput input={urlInput} changeInput={setUrlInput} />
+            <TimerInput input={savedTime} changeInput={setSavedTime} />
             <Box position='relative' padding='5'>
                 <Divider />
                 <AbsoluteCenter bg='white' px='4'>
@@ -108,7 +114,7 @@ const MainApp = ({ rerender }) => {
                     },
                 }}
             >
-                <Stack>
+                <Stack style={{ marginTop: 10 }}>
                     {Object.keys(TabHistory).map((key, index) => {
                         return (
                             <Center key={`tab-history-${index}`}>

@@ -87,12 +87,14 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
     // Pause the timer if it exists for the tab
     let { tabId } = activeInfo;
 
+    /*
     if (tabId in createdTabs) {
         chrome.browserAction.setIcon({ path: 'ticking_on.jpg' });
     }
     else {
         chrome.browserAction.setIcon({ path: 'ticking_off.jpeg' });
     }
+    */
 
     let lastTabId = TabIdRecord[TabIdRecord.length - 1];
     PropogateTabs(tabId, lastTabId);
@@ -107,6 +109,9 @@ chrome.windows.onFocusChanged.addListener(function (windowId) {
     });
 });
 */
+const addTabToHistory = async (tabId, tab) => {
+    tabHistory[tabId] = tab;
+}
 
 function startTimer(tabId) {
     if (tabId in createdTabs) {

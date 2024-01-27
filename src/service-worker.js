@@ -2,7 +2,7 @@ let createdTabs = {}
 let TabIdRecord = [];
 let tabHistory = {}
 
-const TIME_BEFORE_CLOSE = 30000;
+let TIME_BEFORE_CLOSE = 30000;
 const AMT_TABS_IN_RECORD = 10;
 let URL = "https://www.bing.com"
 let STAY_AWAKE_TIMER = undefined;
@@ -10,6 +10,12 @@ let STAY_AWAKE_TIMER = undefined;
 chrome.storage.local.get(null, function (data) {
     if (data.urlToOpen !== undefined) {
         URL = data.urlToOpen;
+    }
+    if (data.savedTime !== undefined) {
+        TIME_BEFORE_CLOSE = data.savedTime;
+    }
+    if (data.tabHistory !== undefined) {
+        tabHistory = data.tabHistory;
     }
 });
 
@@ -23,6 +29,10 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             break;
         case 'updateUrlToOpen':
             URL = message.urlToOpen;
+            break;
+        case 'updateTabTime':
+            TIME_BEFORE_CLOSE = message.time;
+            console.log(TIME_BEFORE_CLOSE);
             break;
         case 'log':
             console.log(message.message);
@@ -103,9 +113,9 @@ chrome.windows.onFocusChanged.addListener(function (windowId) {
 function startTimer(tabId) {
     if (tabId in createdTabs) {
         console.log("Started timer: " + tabId);
+
         createdTabs[tabId] = setTimeout(function () {
-            chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-                const tab = tabs[0];
+            chrome.tabs.get(tabId, function (tab) {
                 try { chrome.tabs.remove(tabId); } catch (err) { } // may be causing an error with tab history
                 delete createdTabs[tabId];
                 tabHistory[tabId] = tab;

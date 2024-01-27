@@ -131,9 +131,12 @@ function startTimer(tabId) {
             chrome.tabs.get(tabId, function (tab) {
                 try { chrome.tabs.remove(tabId); } catch (err) { } // may be causing an error with tab history
                 delete createdTabs[tabId];
+                let date = new Date();
+                tab['time'] = date.toLocaleString();
                 tabHistory[tabId] = tab;
                 checkTimer();
-                chrome.storage.local.set({ 'tabHistory': JSON.stringify(tabHistory) }, function () {
+                console.log(Object.keys(tabHistory));
+                chrome.storage.local.set({ 'tabHistory': tabHistory }, function () {
                     console.log('Tab History is set to ' + JSON.stringify(tabHistory));
                 });
                 //chrome.runtime.sendMessage({ action: 'tabRemoved', tabInfo: tabHistory });

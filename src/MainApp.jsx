@@ -53,11 +53,15 @@ const MainApp = ({ rerender }) => {
         //chrome.runtime.sendMessage({ action: 'getTabHistory' });
         chrome.storage.local.get(null, function (data) {
             if (data.tabHistory !== undefined) {
+                setTabHistory(data.tabHistory);
+                {/*
                 const tabHistoryJSON = JSON.parse(data.tabHistory);
                 if (Object.keys(tabHistoryJSON).length > 0) {
                     console.log(tabHistoryJSON);
                     setTabHistory(tabHistoryJSON);
                 }
+                */}
+                rerender();
             }
             if (data.savedTime !== undefined) {
                 setSavedTime(JSON.parse(data.savedTime));
@@ -115,13 +119,19 @@ const MainApp = ({ rerender }) => {
                 }}
             >
                 <Stack style={{ marginTop: 10 }}>
-                    {Object.keys(TabHistory).map((key, index) => {
-                        return (
-                            <Center key={`tab-history-${index}`}>
-                                <Button onClick={() => { openTab(TabHistory[key].url) }} colorScheme='teal' variant='outline'>{JSON.stringify(TabHistory[key].title)}</Button>
-                            </Center>
-                        )
-                    })}
+                    {
+                        Object.keys(TabHistory).map((key, index) => {
+                            let shorterTitle = TabHistory[key].title.substring(0, 20); // sub is "Hello"
+                            if (shorterTitle.length < TabHistory[key].title.length) {
+                                shorterTitle = shorterTitle + "...";
+                            }
+
+                            return (
+                                <Center key={`tab-history-${index}`}>
+                                    <Button onClick={() => { openTab(TabHistory[key].url) }} colorScheme='teal' variant='outline' flex='1' fontSize='full'>{`${index + 1}. ` + JSON.stringify(shorterTitle) + ' - ' + String(TabHistory[key].time)}</Button>
+                                </Center>
+                            )
+                        })}
                 </Stack>
             </Box>
         </Box>

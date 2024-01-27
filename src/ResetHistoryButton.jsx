@@ -3,8 +3,8 @@ import React from 'react'
 
 const ResetHistoryButton = ({ setTabHistory }) => {
     const clearHistory = () => {
-        chrome.storage.local.set({ 'tabHistory': {} }, function () {
-            console.log('Tab History Cleared.');
+        chrome.storage.local.remove(['tabHistory'], () => {
+            console.log("Tab history cleared..");
         });
         setTabHistory({});
     }
